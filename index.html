@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Font Generator</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Font Generator</h1>
+        <textarea id="text-input" placeholder="Type your text here..."></textarea>
+        
+        <div class="font-options">
+            <button class="font-btn" data-font="fancy">Fancy Font</button>
+            <button class="font-btn" data-font="bold">Bold Font</button>
+            <button class="font-btn" data-font="italic">Italic Font</button>
+        </div>
+        
+        <div id="preview"></div>
+        <button id="copy-btn">Copy Text</button>
+    </div>
+    
+    <div class="scroll-detector"></div>
+    
+    <script>
+        // Font mapping dictionary
+        const fontMaps = {
+            fancy: {
+                'a': '𝓪', 'b': '𝓫', 'c': '𝓬', // Add more characters as needed
+                'A': '𝓐', 'B': '𝓑', 'C': '𝓒',
+                // ... (complete alphabet)
+            },
+            bold: {
+                'a': '𝐚', 'b': '𝐛', 'c': '𝐜',
+                'A': '𝐀', 'B': '𝐁', 'C': '𝐂',
+                // ...
+            },
+            italic: {
+                'a': '𝑎', 'b': '𝑏', 'c': '𝑐',
+                'A': '𝐴', 'B': '𝐵', 'C': '𝐶',
+                // ...
+            }
+        };
+
+        // Convert text to selected font
+        function convertText(text, fontType) {
+            return text.split('').map(char => fontMaps[fontType][char] || char).join('');
+        }
+
+        // DOM elements
+        const textInput = document.getElementById('text-input');
+        const preview = document.getElementById('preview');
+        const fontButtons = document.querySelectorAll('.font-btn');
+        const copyButton = document.getElementById('copy-btn');
+        let selectedFont = 'fancy';
+
+        // Event listeners
+        textInput.addEventListener('input', updatePreview);
+        
+        fontButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                selectedFont = button.dataset.font;
+                fontButtons.forEach(btn => btn.classList.remove('active'));
+                button.classList.add('active');
+                updatePreview();
+            });
+        });
+
+        // Set first font as active by default
+        fontButtons[0].classList.add('active');
+
+        copyButton.addEventListener('click', () => {
+            navigator.clipboard.writeText(preview.textContent);
+            copyButton.textContent = 'Copied!';
+            setTimeout(() => copyButton.textContent = 'Copy Text', 2000);
+        });
+
+        function updatePreview() {
+            const text = textInput.value;
+            preview.textContent = convertText(text, selectedFont);
+            
+            // Save to localStorage for the next page
+            localStorage.setItem('generatedText', preview.textContent);
+        }
+
+        // Scroll detection to load next page
+        const observer = new IntersectionObserver((entries) => {
+            if (entries[0].isIntersecting) {
+                // Add slight delay for better UX
+                setTimeout(() => {
+                    window.location.href = 'symbolic.html';
+                }, 500);
+            }
+        }, { threshold: 0.5 });
+
+        observer.observe(document.querySelector('.scroll-detector'));
+    </script>
+</body>
+</html>
